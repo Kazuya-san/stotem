@@ -172,12 +172,16 @@ export const getMyEvents = asyncHandler(async (req, res) => {
     //make a unique list of Ids combining idsLiked and idsBooked
     let allIds = [...new Set([...idsLiked, ...idsBooked])];
 
-    const events = await Event.find({ _id: { $in: allIds } }).populate(
-      "attendees",
-      "name email profilePicture _id"
-    );
+    if (allIds.length > 0) {
+      const events = await Event.find({ _id: { $in: allIds } }).populate(
+        "attendees",
+        "name email profilePicture _id"
+      );
 
-    return res.json(events);
+      return res.json(events);
+    } else {
+      return res.json([]);
+    }
     //return res.json(user.likedEvents);
   } else {
     res.status(404);
