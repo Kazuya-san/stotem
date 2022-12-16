@@ -62,7 +62,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (req.files && Object.keys(req.files).length > 0) {
     let profilePic = req.files.profilePicture;
 
-    console.log(profilePic);
+    // console.log(profilePic);
 
     let fileExtension = profilePic.name.split(".").pop();
 
@@ -167,7 +167,7 @@ export const getMyEvents = asyncHandler(async (req, res) => {
     let idsLiked = user.likedEvents; //.map((event) => event.eventId);
     let idsBooked = user.boughtTickets; //.map((event) => event.eventId);
 
-    console.log(user);
+    // console.log(user);
 
     //make a unique list of Ids combining idsLiked and idsBooked
     let allIds = [...new Set([...idsLiked, ...idsBooked])];
@@ -307,7 +307,7 @@ export const boughtEvent = asyncHandler(async (req, res) => {
 
     const alreadyBooked = user.boughtTickets.includes(req.params.id);
 
-    console.log(user);
+    // console.log(user);
 
     if (alreadyBooked) {
       res.status(400).json({ message: "Event already bought" });
@@ -342,8 +342,8 @@ export const boughtEvent = asyncHandler(async (req, res) => {
           },
         ],
         mode: "payment",
-        success_url: process.env.CLIENT_URL + event._id + "?bought=true",
-        cancel_url: process.env.CLIENT_URL + event._id,
+        success_url: process.env.FULL + event._id + "?bought=true",
+        cancel_url: process.env.FULL + event._id,
       });
 
       res.json({ url: session.url });
@@ -454,7 +454,7 @@ export const deleteAccount = asyncHandler(async (req, res) => {
 export const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
-  console.log(req.body.isOrganizer);
+  // console.log(req.body.isOrganizer);
 
   if (user) {
     user.name = req.body.name || user.name;
@@ -527,7 +527,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     if (req.files && Object.keys(req.files).length > 0) {
       let profilePic = req.files.profilePicture;
 
-      console.log(profilePic);
+      // console.log(profilePic);
 
       let fileExtension = profilePic.name.split(".").pop();
 
@@ -558,7 +558,6 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       isOrganizer: updatedUser.isOrganizer,
       gender: updatedUser.gender,
       program: updatedUser.program,
-      token: generateToken(updatedUser._id),
     });
   } else {
     res.status(404);

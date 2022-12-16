@@ -180,7 +180,7 @@ export const updateEvent = asyncHandler(async (req, res) => {
     if (req.files && Object.keys(req.files).length > 0) {
       let eventPic = req.files.eventPic;
 
-      console.log(eventPic);
+      // console.log(eventPic);
 
       let fileExtension = eventPic.name.split(".").pop();
 
