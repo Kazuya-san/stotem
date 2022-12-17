@@ -213,6 +213,7 @@ export const getMyEvents = asyncHandler(async (req, res) => {
                   location: 1,
                   starthour: 1,
                   image: 1,
+                  likedBy: 1,
                 },
               },
             ],
