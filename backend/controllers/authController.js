@@ -625,6 +625,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       isOrganizer: updatedUser.isOrganizer,
       gender: updatedUser.gender,
       program: updatedUser.program,
+      profilePicture: updatedUser.profilePicture,
     });
   } else {
     res.status(404);
