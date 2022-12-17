@@ -1,13 +1,12 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userSchema.js";
 import Event from "../models/eventSchema.js";
+import Stripe from "stripe";
 import generateToken from "../utils/generateToken.js";
 import { v4 as uuidv4 } from "uuid";
 
 import dotenv from "dotenv";
-
 dotenv.config();
-import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -163,6 +162,9 @@ export const getLikedEvents = asyncHandler(async (req, res) => {
 export const getMyEvents = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
+  const pageSize = 20;
+  const page = Number(req.query.page) || 1;
+
   if (user) {
     let idsLiked = user.likedEvents; //.map((event) => event.eventId);
     let idsBooked = user.boughtTickets; //.map((event) => event.eventId);
@@ -173,12 +175,60 @@ export const getMyEvents = asyncHandler(async (req, res) => {
     let allIds = [...new Set([...idsLiked, ...idsBooked])];
 
     if (allIds.length > 0) {
-      const events = await Event.find({ _id: { $in: allIds } }).populate(
-        "attendees",
-        "name email profilePicture _id"
-      );
+      // const events = await Event.find({ _id: { $in: allIds } })
+      //   .skip(pageSize * (page - 1))
+      //   .limit(pageSize)
+      //   .populate("attendees", "name email profilePicture _id");
 
-      return res.json(events);
+      // const count = await Event.countDocuments({ _id: { $in: allIds } });
+
+      const result = await Event.aggregate([
+        {
+          $facet: {
+            paginatedResults: [
+              { $match: { _id: { $in: allIds } } },
+              { $skip: pageSize * (page - 1) },
+              { $limit: pageSize },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "attendees",
+                  foreignField: "_id",
+                  as: "attendees",
+                },
+              },
+
+              {
+                $project: {
+                  attendees: {
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    profilePicture: 1,
+                  },
+
+                  title: 1,
+                  description: 1,
+                  startdate: 1,
+                  location: 1,
+                  starthour: 1,
+                  image: 1,
+                },
+              },
+            ],
+
+            totalCount: [
+              { $match: { _id: { $in: allIds } } },
+              { $count: "count" },
+            ],
+          },
+        },
+      ]);
+
+      const events = result[0].paginatedResults;
+      const count = result[0].totalCount[0].count;
+
+      return res.json({ events, page, pages: Math.ceil(count / pageSize) });
     } else {
       return res.json([]);
     }
@@ -405,8 +455,20 @@ export const boughtEvent = asyncHandler(async (req, res) => {
 //create a webhook to handle stripe payment
 
 export const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({}).select("-password");
-  return res.status(200).json({ users });
+  //add pagination
+  const pageSize = 20;
+  const page = Number(req.query.page) || 1;
+
+  const count = await User.countDocuments();
+  const users = await User.find({})
+    .select("-password")
+    .skip(pageSize * (page - 1))
+    .limit(pageSize);
+
+  res.json({ users, page, pages: Math.ceil(count / pageSize) });
+
+  // const users = await User.find({}).select("-password");
+  // return res.status(200).json({ users });
 });
 
 export const getUserById = asyncHandler(async (req, res) => {

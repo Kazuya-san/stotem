@@ -11,7 +11,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export const getEvents = asyncHandler(async (req, res) => {
-  const events = await Event.find({});
+  //paginate
+  const pageSize = 24;
+  const page = Number(req.query.page) || 1;
+
+  const events = await Event.find({})
+    .skip(pageSize * (page - 1))
+    .limit(pageSize);
+  const count = await Event.countDocuments({});
+
+  res.json({ events, page, pages: Math.ceil(count / pageSize) });
+
+  // const events = await Event.find({});
+  // res.json(events);
+
+  return;
   //remove events that are in the past
   const today = new Date();
   const filteredEvents = events.filter((event) => {
@@ -64,8 +78,30 @@ export const deleteEvent = asyncHandler(async (req, res) => {
 });
 
 export const getMyEvents = asyncHandler(async (req, res) => {
-  const events = await Event.find({ creator: req.user._id });
-  res.json(events);
+  const pageSize = 20;
+  const page = Number(req.query.page) || 1;
+
+  const result = await Event.aggregate([
+    {
+      $facet: {
+        paginatedResults: [
+          { $match: { creator: req.user._id } },
+          { $skip: pageSize * (page - 1) },
+          { $limit: pageSize },
+        ],
+
+        totalCount: [
+          { $match: { creator: req.user._id } },
+          { $count: "count" },
+        ],
+      },
+    },
+  ]);
+
+  const events = result[0].paginatedResults;
+  const count = result[0].totalCount[0].count;
+
+  res.json({ events, page, pages: Math.ceil(count / pageSize) });
 });
 
 export const getEventByClub = asyncHandler(async (req, res) => {
