@@ -165,6 +165,13 @@ export const getMyEvents = asyncHandler(async (req, res) => {
   const pageSize = 20;
   const page = Number(req.query.page) || 1;
 
+  // const events = await Event.find({ _id: { $in: allIds } })
+  //   .skip(pageSize * (page - 1))
+  //   .limit(pageSize)
+  //   .populate("attendees", "name email profilePicture _id");
+
+  // const count = await Event.countDocuments({ _id: { $in: allIds } });
+
   if (user) {
     let idsLiked = user.likedEvents; //.map((event) => event.eventId);
     let idsBooked = user.boughtTickets; //.map((event) => event.eventId);
@@ -175,13 +182,6 @@ export const getMyEvents = asyncHandler(async (req, res) => {
     let allIds = [...new Set([...idsLiked, ...idsBooked])];
 
     if (allIds.length > 0) {
-      // const events = await Event.find({ _id: { $in: allIds } })
-      //   .skip(pageSize * (page - 1))
-      //   .limit(pageSize)
-      //   .populate("attendees", "name email profilePicture _id");
-
-      // const count = await Event.countDocuments({ _id: { $in: allIds } });
-
       const result = await Event.aggregate([
         {
           $facet: {

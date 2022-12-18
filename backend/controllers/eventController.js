@@ -88,6 +88,34 @@ export const getMyEvents = asyncHandler(async (req, res) => {
           { $match: { creator: req.user._id } },
           { $skip: pageSize * (page - 1) },
           { $limit: pageSize },
+
+          {
+            $lookup: {
+              from: "users",
+              localField: "attendees",
+              foreignField: "_id",
+              as: "attendees",
+            },
+          },
+
+          {
+            $project: {
+              attendees: {
+                _id: 1,
+                name: 1,
+                email: 1,
+                profilePicture: 1,
+              },
+
+              title: 1,
+              description: 1,
+              startdate: 1,
+              location: 1,
+              starthour: 1,
+              image: 1,
+              likedBy: 1,
+            },
+          },
         ],
 
         totalCount: [
