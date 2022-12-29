@@ -197,7 +197,6 @@ export const getMyEvents = asyncHandler(async (req, res) => {
                   as: "attendees",
                 },
               },
-
               {
                 $project: {
                   attendees: {
@@ -214,10 +213,11 @@ export const getMyEvents = asyncHandler(async (req, res) => {
                   starthour: 1,
                   image: 1,
                   likedBy: 1,
+                  creatorName: 1,
+                  price: 1,
                 },
               },
             ],
-
             totalCount: [
               { $match: { _id: { $in: allIds } } },
               { $count: "count" },

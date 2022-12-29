@@ -167,7 +167,7 @@ export const createEvent = asyncHandler(async (req, res) => {
       price: req.body.price,
       countInStock: req.body.countInStock,
       user: req.user._id,
-      club: req.body.club,
+      // club: req.body.club,
       //   category: req.body.category,
       location: req.body.location,
       startdate: req.body.startdate,
@@ -199,7 +199,7 @@ export const updateEvent = asyncHandler(async (req, res) => {
     description,
     price,
     countInStock,
-    club,
+    // club,
     // category,
     location,
     startdate,
@@ -246,7 +246,7 @@ export const updateEvent = asyncHandler(async (req, res) => {
     event.description = description || event.description;
     event.price = price || event.price;
     event.countInStock = countInStock || event.countInStock;
-    event.club = club || event.club;
+    // event.club = club || event.club;
     // event.category = category || event.category;
     event.location = location || event.location;
     event.startdate = startdate || event.startdate;

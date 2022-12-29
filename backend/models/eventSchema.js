@@ -123,10 +123,10 @@ const eventSchema = new Schema({
     required: true,
   },
 
-  club: {
-    type: String,
-    required: true,
-  },
+  // club: {
+  //   type: String,
+  //   required: true,
+  // },
 
   //   category: {
   //     type: String,
