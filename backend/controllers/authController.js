@@ -229,7 +229,17 @@ export const getMyEvents = asyncHandler(async (req, res) => {
       const events = result[0].paginatedResults;
       const count = result[0].totalCount[0].count;
 
-      return res.json({ events, page, pages: Math.ceil(count / pageSize) });
+      const today = new Date();
+      const filteredEvents = events.filter((event) => {
+        const eventDate = new Date(event.enddate);
+        return eventDate >= today;
+      });
+
+      return res.json({
+        events: filteredEvents,
+        page,
+        pages: Math.ceil(count / pageSize),
+      });
     } else {
       return res.json([]);
     }

@@ -15,24 +15,50 @@ export const getEvents = asyncHandler(async (req, res) => {
   const pageSize = 24;
   const page = Number(req.query.page) || 1;
 
-  const events = await Event.find({})
-    .skip(pageSize * (page - 1))
-    .limit(pageSize);
-  const count = await Event.countDocuments({});
+  // const events = await Event.find({})
+  //   .skip(pageSize * (page - 1))
+  //   .limit(pageSize);
+  // const count = await Event.countDocuments({});
 
-  res.json({ events, page, pages: Math.ceil(count / pageSize) });
+  const result = await Event.aggregate([
+    {
+      $facet: {
+        paginatedResults: [
+          { $skip: pageSize * (page - 1) },
+          { $limit: pageSize },
+        ],
+
+        totalCount: [{ $count: "count" }],
+      },
+    },
+  ]);
+
+  const events = result[0].paginatedResults;
+  const count = result[0].totalCount[0].count;
+
+  const today = new Date();
+  const filteredEvents = events.filter((event) => {
+    const eventDate = new Date(event.enddate);
+    return eventDate >= today;
+  });
+
+  res.json({
+    events: filteredEvents,
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
 
   // const events = await Event.find({});
   // res.json(events);
 
   return;
   //remove events that are in the past
-  const today = new Date();
-  const filteredEvents = events.filter((event) => {
-    const eventDate = new Date(event.enddate);
-    return eventDate >= today;
-  });
-  res.json(filteredEvents);
+  // const today = new Date();
+  // const filteredEvents = events.filter((event) => {
+  //   const eventDate = new Date(event.enddate);
+  //   return eventDate >= today;
+  // });
+  // res.json(filteredEvents);
   // res.json(events);
 });
 
@@ -105,14 +131,89 @@ export const getMyEvents = asyncHandler(async (req, res) => {
 });
 
 export const getEventByClub = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const pageSize = 24;
   if (req.params.club == "all") {
-    const events = await Event.find({});
-    res.json(events);
+    // const events = await Event.find({});
+    // res.json(events);
+
+    const result = await Event.aggregate([
+      {
+        $facet: {
+          paginatedResults: [
+            { $skip: pageSize * (page - 1) },
+            { $limit: pageSize },
+          ],
+
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const events = result[0].paginatedResults;
+    const count = result[0].totalCount[0].count;
+
+    const today = new Date();
+    const filteredEvents = events.filter((event) => {
+      const eventDate = new Date(event.enddate);
+      return eventDate >= today;
+    });
+
+    res.json({
+      events: filteredEvents,
+      page,
+      pages: Math.ceil(count / pageSize),
+    });
     return;
   }
 
-  const events = await Event.find({ creatorName: req.params.club });
-  res.json(events);
+  const result = await Event.aggregate([
+    {
+      $facet: {
+        paginatedResults: [
+          {
+            $match: {
+              creatorName: req.params.club,
+            },
+          },
+          { $skip: pageSize * (page - 1) },
+          { $limit: pageSize },
+        ],
+
+        totalCount: [
+          {
+            $match: {
+              creatorName: req.params.club,
+            },
+            $count: "count",
+          },
+        ],
+      },
+    },
+  ]);
+
+  const events = result[0].paginatedResults;
+  const count = result[0].totalCount[0].count;
+
+  // const events = await Event.find({ creatorName: req.params.club })
+  //   .skip(pageSize * (page - 1))
+  //   .limit(pageSize);
+  // const count = await Event.countDocuments({ creatorName: req.params.club });
+
+  const today = new Date();
+  const filteredEvents = events.filter((event) => {
+    const eventDate = new Date(event.enddate);
+    return eventDate >= today;
+  });
+
+  res.json({
+    events: filteredEvents,
+    page,
+    pages: Math.ceil(count / pageSize),
+  });
+
+  // const events = await Event.find({ creatorName: req.params.club });
+  // res.json(events);
 });
 
 export const getClubs = asyncHandler(async (req, res) => {
