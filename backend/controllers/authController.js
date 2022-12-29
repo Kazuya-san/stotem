@@ -211,6 +211,7 @@ export const getMyEvents = asyncHandler(async (req, res) => {
                   startdate: 1,
                   location: 1,
                   starthour: 1,
+                  enddate: 1,
                   image: 1,
                   likedBy: 1,
                   creatorName: 1,
