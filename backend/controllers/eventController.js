@@ -221,7 +221,7 @@ export const getClubs = asyncHandler(async (req, res) => {
   const clubs = new Set();
 
   events.forEach((event) => {
-    clubs.add(event.creatorName);
+    clubs.add(event.creatorName.trim(" "));
   });
 
   res.json(Array.from(clubs));
