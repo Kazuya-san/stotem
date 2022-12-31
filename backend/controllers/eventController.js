@@ -185,6 +185,8 @@ export const getEventByClub = asyncHandler(async (req, res) => {
             $match: {
               creatorName: req.params.club,
             },
+          },
+          {
             $count: "count",
           },
         ],
