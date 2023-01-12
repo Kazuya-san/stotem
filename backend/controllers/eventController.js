@@ -76,6 +76,20 @@ export const getEventById = asyncHandler(async (req, res) => {
   }
 });
 
+export const getEventBySearch = asyncHandler(async (req, res) => {
+  const event = await Event.findOne({ title: req.params.title }).populate(
+    "attendees",
+    "name email profilePicture _id program gender"
+  );
+
+  if (event) {
+    res.json(event);
+  } else {
+    res.status(404);
+    throw new Error("Event not found");
+  }
+});
+
 export const getAttendees = asyncHandler(async (req, res) => {
   const event = await Event.findById(req.params.id);
 
@@ -166,6 +180,14 @@ export const getEventByClub = asyncHandler(async (req, res) => {
     });
     return;
   }
+
+  const x = ["March 24, 2020", "April 2, 2022"];
+
+  //sort by date
+
+  const sorted = x.sort((a, b) => {
+    return new Date(a) - new Date(b);
+  });
 
   const result = await Event.aggregate([
     {
@@ -278,7 +300,7 @@ export const createEvent = asyncHandler(async (req, res) => {
       starthour: req.body.starthour,
       endhour: req.body.endhour,
       creator: req.user._id,
-      creatorName: req.user.name,
+      creatorName: req.user.name.trim(" "),
       qrCode: Math.random().toString(36).substring(7),
     });
 

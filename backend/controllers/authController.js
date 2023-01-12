@@ -47,7 +47,7 @@ export const login = asyncHandler(async (req, res) => {
 let allowedExtensions = ["jpg", "jpeg", "png"];
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, gender, program } = req.body;
+  const { name, email, password, gender, program, from } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -84,6 +84,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     password,
     gender,
     program,
+    from,
     profilePicture:
       req.body?.profilePicture && req.body.profilePicture.length > 0
         ? req.body.profilePicture
@@ -105,6 +106,7 @@ export const registerUser = asyncHandler(async (req, res) => {
         boughtTickets: user.boughtTickets,
         gender: user.gender,
         program: user.program,
+        from: user.from,
         profilePicture: user.profilePicture,
       },
 
@@ -539,6 +541,7 @@ export const updateUser = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
     user.isAdmin = req.body.isAdmin || user.isAdmin;
     user.isOrganizer = req.body.isOrganizer || user.isOrganizer;
+    user.from = req.body.from || user.from;
 
     const updatedUser = await user.save();
 
@@ -548,6 +551,7 @@ export const updateUser = asyncHandler(async (req, res) => {
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
       isOrganizer: updatedUser.isOrganizer,
+      from: updatedUser.from,
     });
   } else {
     res.status(404);
@@ -599,6 +603,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
         : user.profilePicture;
     user.gender = req.body.gender || user.gender;
     user.program = req.body.program || user.program;
+    user.from = req.body.from || user.from;
 
     let uploadPath;
     let savedPath;
@@ -637,6 +642,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       gender: updatedUser.gender,
       program: updatedUser.program,
       profilePicture: updatedUser.profilePicture,
+      from: updatedUser.from,
     });
   } else {
     res.status(404);

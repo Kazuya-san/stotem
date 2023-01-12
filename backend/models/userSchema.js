@@ -133,6 +133,11 @@ const userSchema = mongoose.Schema(
       required: false,
     },
 
+    from: {
+      type: String,
+      default: "France",
+    },
+
     profilePicture: {
       type: String,
       required: false,
