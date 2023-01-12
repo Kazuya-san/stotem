@@ -65,7 +65,7 @@ export const getEvents = asyncHandler(async (req, res) => {
 export const getEventById = asyncHandler(async (req, res) => {
   const event = await Event.findById(req.params.id).populate(
     "attendees",
-    "name email profilePicture _id program gender from"
+    "name email profilePicture _id program gender"
   );
 
   if (event) {
