@@ -164,3 +164,8 @@ userSchema.pre("save", async function (next) {
 const User = mongoose.model("User", userSchema);
 
 export default User;
+
+//decode the bycrpt password
+
+// let encyprtedPassword =
+//   "$2a$10$8HR0um1rue82mRxjhfeyl.UnjJUN9x4FoquqYfNdf7/iv9qGZSE46";
