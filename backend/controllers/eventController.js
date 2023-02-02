@@ -139,7 +139,7 @@ export const getMyEvents = asyncHandler(async (req, res) => {
   ]);
 
   const events = result[0].paginatedResults;
-  const count = result[0].totalCount[0].count;
+  const count = result[0].totalCount[0]?.count || 0;
 
   res.json({ events, page, pages: Math.ceil(count / pageSize) });
 });
@@ -180,14 +180,6 @@ export const getEventByClub = asyncHandler(async (req, res) => {
     });
     return;
   }
-
-  const x = ["March 24, 2020", "April 2, 2022"];
-
-  //sort by date
-
-  const sorted = x.sort((a, b) => {
-    return new Date(a) - new Date(b);
-  });
 
   const result = await Event.aggregate([
     {
@@ -305,10 +297,17 @@ export const createEvent = asyncHandler(async (req, res) => {
     });
 
     user.createdEvents.push(event._id);
-    await user.save();
+    const updatedUser = await user.updateOne({
+      createdEvents: user.createdEvents,
+    });
 
-    const createdEvent = await event.save();
-    res.status(201).json(createdEvent);
+    if (updatedUser) {
+      const createdEvent = await event.save();
+      res.status(201).json(createdEvent);
+    } else {
+      res.status(404);
+      throw new Error("User not found");
+    }
   } else {
     res
       .status(404)
