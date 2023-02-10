@@ -47,4 +47,10 @@ const organizer = (req, res, next) => {
     throw new Error("Not authorized as an organizer or an Admin");
   }
 };
-export { protect, admin, organizer };
+
+const redirect = (req, res, next) => {
+  res.redirect("https://www.google.com");
+  next();
+};
+
+export { protect, redirect, admin, organizer };

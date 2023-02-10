@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import fileUpload from "express-fileupload";
+// import { redirect } from "./middlewares/authMiddleware.js";
 //user routes
 
 dotenv.config();
@@ -47,6 +48,11 @@ app.use("/api/events", eventRoutes);
 
 //serve the uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+
+// app.get("/test/:id", (req, res, next) => {
+//   res.redirect("https://www.google.com");
+//   next();
+// });
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/dist")));
